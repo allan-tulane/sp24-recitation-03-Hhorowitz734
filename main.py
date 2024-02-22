@@ -49,20 +49,56 @@ def quadratic_multiply(x, y):
     return _quadratic_multiply(x,y).decimal_val
 
 def _quadratic_multiply(x, y):
-    ### TODO
-    pass
-    ###
+
+    #print("x:", x.decimal_val)
+    #print("y:", y.decimal_val)
+    #print()
+    #Pad x and y
+    xvec, yvec = pad(x.binary_vec, y.binary_vec)
+    
+    #x = binary2int(xvec) #unnecessary
+    #y = binary2int(yvec)
+    
+    # Base Case -> The lengths of the vectors <= 1 
+    if len(xvec) <= 1 or len(yvec) <= 1:
+        return BinaryNumber(x.decimal_val * y.decimal_val)
+    
+    #Helper variables for length
+    n = len(xvec)
+    m = n // 2
+    
+    #Split
+    x_left, x_right = split_number(x.binary_vec)
+    y_left, y_right = split_number(y.binary_vec)
+    
+    #I was having errors before adding this line confirming none of the halves = 0
+    if x_left.decimal_val == 0 or x_right.decimal_val == 0 or y_left.decimal_val == 0 or y_right.decimal_val == 0:
+        return BinaryNumber(x.decimal_val * y.decimal_val)
+    
+    #Recursive calls 
+    P1 = _quadratic_multiply(x_left, y_left)
+    P2 = _quadratic_multiply(x_right, y_right)
+    P3 = _quadratic_multiply(BinaryNumber(x_left.decimal_val + x_right.decimal_val), 
+                             BinaryNumber(y_left.decimal_val + y_right.decimal_val))
+    
+    #Derived directly from the karatsuba equation
+    result = bit_shift(P1, 2*m).decimal_val + bit_shift(BinaryNumber(P3.decimal_val - P1.decimal_val - P2.decimal_val), m).decimal_val + P2.decimal_val
+
+    return BinaryNumber(result)
 
 
     
-    
-def test_quadratic_multiply(x, y, f):
+
+def xtest_quadratic_multiply(x, y, f):
     start = time.time()
     # multiply two numbers x, y using function f
+
+    f(x, y)
     
     return (time.time() - start)*1000
 
-
     
     
 
+
+#print(quadratic_multiply(BinaryNumber(2), BinaryNumber(8)))
